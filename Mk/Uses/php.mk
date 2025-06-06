@@ -110,7 +110,7 @@ DIST_SUBDIR=	PECL
 
 PHPBASE?=	${LOCALBASE}
 
-_ALL_PHP_VERSIONS=	81 82 83 84
+_ALL_PHP_VERSIONS=	74 81 82 83 84
 
 # Make the already installed PHP the default one.
 .  if exists(${PHPBASE}/etc/php.conf)
@@ -191,6 +191,9 @@ PHP_EXT_INC=    hash json openssl pcre random spl
 .    elif ${PHP_VER} == 81
 PHP_EXT_DIR=   20210902
 PHP_EXT_INC=    hash json openssl pcre spl
+.    elif ${PHP_VER} == 74
+PHP_EXT_DIR=   20190902
+PHP_EXT_INC=    hash pcre spl
 .    else
 # (rene) default to DEFAULT_VERSIONS
 PHP_EXT_DIR=   20230831
@@ -383,6 +386,7 @@ _USE_PHP_ALL=	bcmath bitset bz2 calendar ctype curl dba dom \
 		tidy tokenizer xml xmlreader xmlrpc xmlwriter xsl zephir_parser \
 		zip zlib
 # version specific components
+_USE_PHP_VER74= ${_USE_PHP_ALL} pdf zephir_parser
 _USE_PHP_VER81=	${_USE_PHP_ALL}
 _USE_PHP_VER82=	${_USE_PHP_ALL}
 _USE_PHP_VER83=	${_USE_PHP_ALL}
@@ -412,6 +416,9 @@ imap_DEPENDS=	mail/php${PHP_VER}-imap
 .    else
 imap_DEPENDS=	mail/pecl-imap@${PHP_FLAVOR}
 .    endif
+.    if ${PHP_VER} < 80
+json_DEPENDS=  devel/php${PHP_VER}-json
+.    endif
 intl_DEPENDS=	devel/php${PHP_VER}-intl
 ldap_DEPENDS=	net/php${PHP_VER}-ldap
 mbstring_DEPENDS=	converters/php${PHP_VER}-mbstring
@@ -421,7 +428,11 @@ memcached_DEPENDS=	databases/pecl-memcached@${PHP_FLAVOR}
 mysqli_DEPENDS=	databases/php${PHP_VER}-mysqli
 odbc_DEPENDS=	databases/php${PHP_VER}-odbc
 opcache_DEPENDS=	www/php${PHP_VER}-opcache
+.    if ${PHP_VER} < 80
+openssl_DEPENDS=security/php${PHP_VER}-openssl
+.    endif
 pcntl_DEPENDS=	devel/php${PHP_VER}-pcntl
+pdf_DEPENDS=   print/pecl-pdflib@${PHP_FLAVOR}
 pdo_DEPENDS=	databases/php${PHP_VER}-pdo
 pdo_dblib_DEPENDS=	databases/php${PHP_VER}-pdo_dblib
 pdo_firebird_DEPENDS=	databases/php${PHP_VER}-pdo_firebird
@@ -455,7 +466,11 @@ tidy_DEPENDS=	www/php${PHP_VER}-tidy
 tokenizer_DEPENDS=	devel/php${PHP_VER}-tokenizer
 xml_DEPENDS=	textproc/php${PHP_VER}-xml
 xmlreader_DEPENDS=	textproc/php${PHP_VER}-xmlreader
-xmlrpc_DEPENDS=	net/pecl-xmlrpc@${PHP_FLAVOR}
+.    if ${PHP_VER} >= 80
+xmlrpc_DEPENDS=        net/pecl-xmlrpc@${PHP_FLAVOR}
+.    else
+xmlrpc_DEPENDS=        net/php${PHP_VER}-xmlrpc
+.    endif
 xmlwriter_DEPENDS=	textproc/php${PHP_VER}-xmlwriter
 xsl_DEPENDS=	textproc/php${PHP_VER}-xsl
 zephir_parser_DEPENDS=	textproc/pecl-zephir_parser@${PHP_FLAVOR}
